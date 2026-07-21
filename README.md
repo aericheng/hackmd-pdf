@@ -1,83 +1,91 @@
 # HackMD PDF Exporter
 
-一個免費的 Chrome 擴充功能，用於將 HackMD 筆記匯出為 PDF 檔案。
+A free Chrome extension for exporting HackMD notes to PDF.
 
-## 功能特點
+## Features
 
-- 免費使用，無需付費訂閱
-- 簡單易用的介面
-- 保留文件格式和樣式
-- **自動等待 LaTeX/MathJax 數學公式渲染完成**（支援 844+ 公式）
-- **最佳化字體大小**，提升閱讀體驗
-- 完整保留連結文字和樣式
-- 支援程式碼高亮、表格、圖片等內容
-- PDF 中文字可正常選取和複製
+- Free, no subscription required
+- Simple, one-click interface
+- Preserves document formatting and styling
+- **Automatically waits for LaTeX/MathJax math to finish rendering** (tested with 844+ formulas in one document)
+- **Optimized font size** for a better reading experience
+- Fully preserves link text and styling
+- Supports syntax-highlighted code blocks, tables, and images
+- Chinese (and other) text in the exported PDF stays selectable and copyable
 
-## 安裝方法
+## Installation
 
-### 開發者模式安裝
+### Load unpacked (developer mode)
 
-1. 下載或複製此專案到本機
-2. 開啟 Chrome 瀏覽器，訪問 `chrome://extensions/`
-3. 在右上角啟用「開發人員模式」
-4. 點擊「載入未封裝項目」
-5. 選擇此專案的資料夾
-6. 擴充功能安裝成功！
+1. Download or clone this repository locally.
+2. Open Chrome and go to `chrome://extensions/`.
+3. Enable "Developer mode" (top right).
+4. Click "Load unpacked".
+5. Select this repository's folder.
+6. The extension is installed.
 
-**注意**：此擴充功能未包含自訂圖示，將顯示 Chrome 預設的拼圖圖示，但不影響功能使用。
+**Note**: this extension doesn't ship a custom icon, so Chrome shows its default puzzle-piece icon — that doesn't affect functionality.
 
-## 使用方法
+## Project structure
 
-1. 在 Chrome 瀏覽器中開啟任意 HackMD 筆記頁面
-2. 點擊瀏覽器工具列中的擴充功能圖示
-3. 點擊「匯出為 PDF」按鈕
-4. 瀏覽器會開啟列印對話框
-5. 選擇「另存為 PDF」或你的 PDF 印表機
-6. 點擊「儲存」即可下載 PDF 檔案
+```
+manifest.json    Manifest V3 config: popup entry point, content script injected on hackmd.io/*.hackmd.io
+content.js        injected into the HackMD page: scrolls to trigger lazy-loaded content, detects
+                   MathJax v2/v3 & KaTeX render completion, applies @media print CSS, triggers
+                   window.print()
+popup.html/js      toolbar popup UI; sends the "export" message to content.js
+popup.css          popup styling
+```
 
-## 使用提示
+## Usage
 
-- 建議在**檢視模式**（而非編輯模式）下匯出，以獲得最佳效果
-- 匯出前可以先預覽列印效果
-- 如果內容較長，PDF 會自動分頁
-- 程式碼區塊、表格會盡量避免跨頁斷開
+1. Open any HackMD note page in Chrome.
+2. Click the extension icon in the toolbar.
+3. Click the "Export to PDF" button.
+4. The browser's print dialog opens.
+5. Choose "Save as PDF" or your PDF printer.
+6. Click "Save" to download the PDF.
 
-## 支援的網站
+## Tips
+
+- Export from **view mode** (not edit mode) for best results.
+- You can preview the print layout before exporting.
+- Long documents are paginated automatically.
+- Code blocks and tables try to avoid breaking across a page boundary.
+
+## Supported sites
 
 - hackmd.io
-- *.hackmd.io（所有 HackMD 子網域）
+- *.hackmd.io (all HackMD subdomains)
 
-## 技術實作
+## How it works
 
-- 使用 Chrome Extension Manifest V3
-- 透過瀏覽器原生的 `window.print()` API 產生 PDF
-- 使用 CSS `@media print` 最佳化列印樣式
-- 自動滾動頁面觸發懶加載，確保所有 LaTeX/MathJax 公式渲染
-- 智能偵測數學公式渲染狀態（支援 MathJax v2/v3 和 KaTeX）
-- Content Script 與 Popup 透過訊息通訊
+- Built as a Chrome Extension Manifest V3.
+- Generates the PDF via the browser's native `window.print()` API.
+- Uses `@media print` CSS to optimize the print layout.
+- Auto-scrolls the page to trigger lazy-loading and ensure all LaTeX/MathJax formulas render.
+- Detects math-rendering completion for both MathJax (v2/v3) and KaTeX.
+- The content script and popup communicate via message passing.
 
-## 常見問題
+## FAQ
 
-### Q: 為什麼點擊按鈕後沒有反應？
-A: 請確保你在 HackMD 的筆記頁面上使用此擴充功能，而不是在 HackMD 的首頁或其他頁面。
+### Q: Nothing happens when I click the button?
+A: Make sure you're on an actual HackMD note page, not the HackMD homepage or another page.
 
-### Q: 匯出的 PDF 格式不理想怎麼辦？
-A: 嘗試在檢視模式下匯出，並確保頁面已完全載入。你也可以在列印對話框中調整頁邊距等設定。
+### Q: The exported PDF doesn't look right?
+A: Try exporting from view mode and make sure the page has fully loaded. You can also adjust margins etc. in the print dialog.
 
-### Q: 可以自訂匯出樣式嗎？
-A: 可以！你可以修改 `content.js` 中的 `@media print` CSS 樣式來自訂匯出效果。
+### Q: Are the hyperlinks in the PDF clickable?
+A: No — since this relies on the browser's native print function, links in the PDF aren't clickable. They're shown as blue underlined text so you can still see the link text and copy it manually. This is the best trade-off while guaranteeing correct LaTeX rendering and selectable text.
 
-### Q: PDF 中的超連結可以點擊嗎？
-A: 由於使用瀏覽器原生的列印功能，PDF 中的超連結無法點擊。連結會以藍色底線文字顯示，你可以看到連結文字並手動複製使用。這是在保證 LaTeX 公式正確渲染和文字可正常擷取的前提下的最佳方案。
-
-## 開源授權
+## License
 
 MIT License
 
-## 貢獻
+## Contributing
 
-歡迎提交 Issue 和 Pull Request！
+Issues and pull requests are welcome!
 
-## 免責聲明
+## Disclaimer
 
-本擴充功能僅供學習和個人使用。請尊重 HackMD 的服務條款和版權。
+This extension is for learning and personal use only. Please respect HackMD's terms of service and copyright.
